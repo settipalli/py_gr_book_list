@@ -36,6 +36,7 @@ class Book(Base):
     id = Column(Integer, Sequence('author_id_seq'), autoincrement=True, primary_key=True),
     name = Column(String(255)),
     url = Column(String(255)),
+    img_url = Column(String(255)),
     avgrating = Column(Numeric),
     ratings_count = Column(Integer),
     published_year = Column(Integer)
