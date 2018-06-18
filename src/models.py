@@ -1,5 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (create_engine, Column, Integer, Numeric, String, Sequence)
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 engine = create_engine('sqlite://books.db', echo=True)
@@ -37,6 +39,12 @@ class Book(Base):
     avgrating = Column(Numeric),
     ratings_count = Column(Integer),
     published_year = Column(Integer)
+    category_id = Column(Integer, ForeignKey('category.id'))
+    author_id = Column(Integer, ForeignKey('author.id'))
+
+    # relationships
+    category = relationship('Category', back_populates='categories')
+    author = relationship('Author', back_populates='authors')
 
     def __repr__(self):
         return "<Book(id='%d', name='%s', url='%s', avgrating='%f', ratings='%d', published='%d')>" % (
