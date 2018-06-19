@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from functools import lru_cache
 import locale
-import src.models
+# import models
 
 # Set default locale - required while parsing string to float (later)
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
@@ -46,11 +46,9 @@ def get_request_headers():
 
 def download_url_html(url):
     headers = get_request_headers()
-    # r = requests.get(url, headers=headers)
-    # if r.status_code == 200:
-    #     html = r.text
-    with open('out/index.html') as f:
-        html = f.read()
+    r = requests.get(url, headers=headers)
+    if r.status_code == 200:
+        html = r.text
     return html
 
 
@@ -59,10 +57,13 @@ def parse_html_and_add_record(html):
     container = s.find('div', class_='leftContainer')
     category_books_count = locale.atoi(container.find('span', class_='smallText').text.strip().rstrip(')').split()[-1])
     books_list = container.find_all('div', class_='elementList')
+    f = open('out/books.csv', 'a')
     for book in books_list:
         left = book.find('div', class_='left')
         book_img_url = left.find('img')['src']
         book_url = 'www.goodreads.com/{}'.format(left.find('a', class_='bookTitle')['href'])
+        book_title = left.find('a', class_='bookTitle').text
+        book_title = " ".join(book_title.split()).replace(',','_')
         author_name = left.find('a', class_='authorName').span.text
         author_url = left.find('a', class_='authorName')['href']
         grey_text = left.find('span', class_='greyText smallText').text.strip().split('\n')
@@ -71,7 +72,11 @@ def parse_html_and_add_record(html):
         book_published_year = locale.atoi(grey_text[2].strip().split()[1])
         category_name = s.find('div', class_='breadcrumbs').find_all('a')[-1]['href'].split('/')[-1]
 
-    # add the record to the database
+        # add the record to the database
+        book_details = "{},{},{},{},{},{},{}\n".format(book_title, author_name, book_avg_rating,
+                                                  book_ratings_count, book_published_year, category_name, book_url)
+        f.write(book_details)
+    f.close()
 
 
 def parse_args():
@@ -95,7 +100,14 @@ def main():
     Entry point of the program.
     """
     args = parse_args()
-    print(args)
+    with open('src/category.urls', 'r') as f:
+        category_data = f.read().split('\n')
+    for category in category_data:
+        data = category.split(',')
+        print ("Downloading books in the '{}' category ...".format(data[0]))
+        html = download_url_html(data[1])
+        parse_html_and_add_record(html)
+        print ("Done.")
 
 
 # =================================================================================

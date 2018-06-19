@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
-engine = create_engine('sqlite://books.db', echo=True)
+engine = create_engine('sqlite:///books.db', echo=True)
 
 
 class Category(Base):
