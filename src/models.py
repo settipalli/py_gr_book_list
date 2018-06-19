@@ -12,12 +12,11 @@ class Category(Base):
     id = Column(Integer, Sequence('category_id_seq'), autoincrement=True, primary_key=True),
     name = Column(String(255)),
     url = Column(String(255)),
-    page_count = Column(Integer),
     books_count = Column(Integer)
 
     def __repr__(self):
-        return "<Category(id='%d', name='%s', url='%s', pages='%d', books='%d')>" % (
-            self.id, self.name, self.url, self.page_count, self.books_count)
+        return "<Category(id='%d', name='%s', url='%s', books='%d')>" % (
+            self.id, self.name, self.url, self.books_count)
 
 
 class Author(Base):
